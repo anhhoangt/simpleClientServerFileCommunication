@@ -48,6 +48,7 @@ void updateFileTableForWrite(const char* filename) {
     }
 }
 
+// Function to remove file
 void processRemoveCommand(int client_sock, const char* filePath) {
     if (remove(filePath) == 0) {
         send(client_sock, "File removed successfully\n", 26, 0);
@@ -55,6 +56,19 @@ void processRemoveCommand(int client_sock, const char* filePath) {
         perror("Error removing file");
         send(client_sock, "Error removing file\n", 21, 0);
     }
+}
+
+// Function to retrieve file versioning information
+char* getFileVersionInfo(const char* filename) {
+    static char info[BUFFER_SIZE];
+    strcpy(info, "No versions found.\n"); // Default message
+    for (int i = 0; i < fileTableSize; i++) {
+        if (strcmp(fileTable[i].filename, filename) == 0) {
+            snprintf(info, BUFFER_SIZE, "File: %s, Version: %d\n", fileTable[i].filename, fileTable[i].version);
+            break;
+        }
+    }
+    return info;
 }
 
 // Thread function to handle client
@@ -138,6 +152,13 @@ void *client_handler(void *socket_desc) {
             processRemoveCommand(client_sock, filePath);
             pthread_mutex_unlock(&file_mutex); // Unlock the mutex
             printf("File removed successfully\n");
+        }
+
+        // Processing the LS command
+        else if (strncmp(client_message, "LS ", 3) == 0) {
+            char* filePath = strtok(client_message + 3, "\n");
+            char* versionInfo = getFileVersionInfo(filePath);
+            send(client_sock, versionInfo, strlen(versionInfo), 0);
         }
     }
 

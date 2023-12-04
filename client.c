@@ -138,6 +138,17 @@ int main(int argc, char *argv[])
     else if (argc == 3 && strcmp(argv[1], "RM") == 0) {
         sendRemoveCommand(socket_desc, argv[2]);
     }
+    // Usage of LS function
+    else if (argc == 3 && strcmp(argv[1], "LS") == 0) {
+        char buffer[BUFFER_SIZE];
+        snprintf(buffer, BUFFER_SIZE, "LS %s\n", argv[2]);
+        send(socket_desc, buffer, strlen(buffer), 0);
+
+        // Receive and print versioning information
+        if (recv(socket_desc, buffer, BUFFER_SIZE, 0) > 0) {
+            printf("Versioning Info: %s\n", buffer);
+        }
+}
     // Invalid command
     else {
         printf("Invalid command\n");
