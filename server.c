@@ -90,7 +90,7 @@ void *client_handler(void *socket_desc) {
                 pthread_mutex_unlock(&file_mutex);
                 continue;
             }
-            // updateFileTableForWrite(filePath);
+            updateFileTableForWrite(filePath);
             ssize_t bytesRead;
             // Read file data from client until there's no more data
             while ((bytesRead = recv(client_sock, client_message, BUFFER_SIZE, 0)) > 0) {
